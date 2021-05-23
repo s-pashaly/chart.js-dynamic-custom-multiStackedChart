@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+    <title>Index chart</title>
+  </head>
+
+<body>
+
+    <div style="display: flex; justify-content: center; margin: 20px;">
+        <button onclick="indexInfo('houseChartData')">
+            Houses
+        </button>
+        <button onclick="indexInfo('unitChartData')">
+            Units
+        </button>
+    </div>
+
+    <div class="table-responsive"></div>
+    <canvas id="indexChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+
+    function indexInfo(main){ 
+
+    // JSON connect
+    $.getJSON("indexData.json", function( data ) {
+
+    var model = data[main]
+
+    const index = document.getElementById('indexChart').getContext('2d');
+
+    // Chart
+    const indexChart = new Chart(index, {
+    type: 'bar',
+    data: {
+        labels: data['indexData']['qData'],
+        datasets: [
+        {
+                    
+                    type: 'line',
+                    label: 'Buy Search Index',
+                    data: data['indexData']['buyIndex'],
+                    // Style line chart
+                    borderColor: data['indexData']['buyIndexColor'],
+                    borderWidth: 4,
+                    fill: false
+                    },
+                    
+                    {
+                    type: 'line',
+                    label: 'Rent Search Index',
+                    data: data['indexData']['rentIndex'],
+                    // Style line chart
+                    borderColor: data['indexData']['rentIndexColor'],
+                    borderWidth: 4,
+                    fill: false
+                    }
+        ]
+    },
+
+    //Options
+    options: {
+        legend: {
+            display: true,
+            position: 'bottom',
+            align: 'center',
+            
+            labels: {
+                boxWidth: 4,
+                padding: 15
+            }
+        },
+        scales: {
+            yAxes: [{
+                ticks: { beginAtZero: true },
+                stacked: true,
+                
+            }],
+            xAxes: [{
+                stacked: true
+            }]
+        }
+    }
+    });
+
+    for (BRs in model) {
+            
+            var newDataset = {
+                label: BRs,
+                data: [],
+                borderWidth: 4,
+                borderColor: model[BRs]['color'],
+                backgroundColor: model[BRs]['color']
+            };
+
+            for (value in model[BRs]['val']) {
+                newDataset.data.push(model[BRs]['val'][value]);
+                console.log(model[BRs]['val'][value]) ;
+            }
+
+            indexChart.config.data.datasets.push(newDataset);
+
+        }
+
+        indexChart.update();
+
+    });
+    }
+
+    $( document ).ready(function() {
+        indexInfo('houseChartData');
+    });
+   
+    </script>
+
+</body>
+</html>
